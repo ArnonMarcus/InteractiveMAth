@@ -4,10 +4,9 @@ class BiPolyNumber {
     row_form = FORM.beta;
 
 
-    constructor(columns=null) {
-        if (Array.isArray(columns))
-            for (let column of columns)
-                this.columns.push(column instanceof PolyNumber ? column : new PolyNumber(column));
+    constructor(columns=[]) {
+        for (let column of columns)
+            this.columns.push(column instanceof PolyNumber ? column : new PolyNumber(column));
     }
 
     static fromRowAndColumn(row, column) {

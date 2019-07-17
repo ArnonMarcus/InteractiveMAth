@@ -1,6 +1,6 @@
 
 function _print(p, string_arrays) {
-    const string_array = typeof p === 'number' ? `${p}` : p._toStringArray();
+    const string_array = typeof p === 'number' ? `${p}` : p.string_rows;
     const height = string_array.length;
     const width = string_array[0].length;
 
@@ -34,6 +34,8 @@ function _makeOpStrings(op, total_height) {
 }
 
 const P = (...array) => new PolyNumber(array);
+const R = (...array) => new RowPolyNumber(array);
+const C = (...array) => new ColumnPolyNumber(array);
 const B = (...array) => new BiPolyNumber(array);
 
 

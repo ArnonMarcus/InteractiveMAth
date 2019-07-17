@@ -1,32 +1,13 @@
 
 
 class PolyNumber {
+    static STANDARD_FORM = 'x';
     co;
-    form;
     
-    constructor(co=[0], form=FORM.beta) {
-        this.co = co;
-        this.form = form;
-    }
-
-    toString() {return this._toStringArray().join('\n')};
-    _toStringArray() {
-        if (Object.is(this.form, FORM.beta)) return [`[ ${this.co.join(' ')} }`];
-        if (this.is_zero) return ['┏━┓', ' 0 '];
-        
-        let co_strings = strings(this.co);
-        const width = longest(co_strings);
-        
-        return [
-            '┏'+'━'.repeat(width)+'┓', 
-            ...co_strings.map(
-                (s) => s.padStart(s.length + 1)
-                        .padEnd(s.length + 2 + width))
-        ];
-    }
-
-    toStandardForm() {
-        if (this.is_zero) return `0${this.form}°`;
+    constructor(co=[0]) {this.co = co}
+    toString() {return this.str};
+    toStandardForm(form=this.constructor.STANDARD_FORM) {
+        if (this.is_zero) return `0${form}°`;
 
         const result = [];
         const deg = this.deg;
@@ -46,23 +27,28 @@ class PolyNumber {
             prefix = cls._formatPrefix(value, is_first_non_zero);
             coefficient = cls._formatValue(value, is_first_non_zero);
 
-            result.push([prefix, coefficient, '&', suffix].join(''));
+            result.push([prefix, coefficient, form, suffix].join(''));
         }
 
-        return result.join('').replace(/&/g, this.form);
+        return result.join('');
     }
 
+    get str() {return `[ ${this.co.join(' ')} )`};
+    get string_rows() {return [this.str]}
+    
     get msc() {return this.co[this.deg]}
     get deg() {
         for (let i = this.co.length - 1; i >= 0; i--)
             if (this.co[i] !== 0)
                 return i;
     }
-    
-    get width() {return this.form === FORM.alpha ? 1 : this.co.length}
-    get height() {return this.form === FORM.beta ? 1 : this.co.length};
-    get string_height() {return this.form === FORM.beta ? 1 : this.height + 1}
 
+    get height() {return 1}
+    get width() {return this.co.length}
+
+    get string_height() {return 1}
+    get string_width() {return sum(lengths(strings(this.co))) + this.co.length + 3}
+    
     get is_zero() {return this.allZeros()}
     allZeros = (up_to=this.co.length) => this.co.slice(0, up_to).every(__ZER_MAP);
     copy = () => new this.constructor([...this.co]);
@@ -529,18 +515,31 @@ class PolyNumber {
     // }
 }
 
+class RowPolyNumber extends PolyNumber {
+    static STANDARD_FORM = FORM.alpha;
+    
+    get string_height() {return 3}
+    get string_width() {return sum(lengths(strings(this.co))) + this.co.length - 1}
+    get string_rows() {return ['┏', '┃'+strings(this.co).join(' ') , '┗']}
+}
 
+class ColumnPolyNumber extends PolyNumber {
+    static STANDARD_FORM = FORM.beta;
+    
+    get string_height() {return this.co.length + 1}
+    get string_width() {return max(...lengths(strings(this.co))) + this.co.length - 1}
+    get string_rows() {
+        const co_strings = strings(this.co);
+        const width = max(...lengths(co_strings));
+        return ['┏'+'━'.repeat(width)+'┓', ...co_strings.map(
+            (s) => s.padStart(s.length + 1)
+                    .padEnd(s.length + 2 + width)
+        )];
+    }
+    get width() {return 1}
+    get height() {return this.co.length}
+}
 
 
 const ONE = new PolyNumber([1]);
 const ALPHA = new PolyNumber([0, 1]);
-
-//
-// function __CON_MAP(item) {
-//     if (Array.isArray(item)) {
-//         if (Array.isArray(item[0]))
-//             return new BiPolyNumber(item);
-//         return new PolyNumber(item);
-//     }
-//     return item;
-// }

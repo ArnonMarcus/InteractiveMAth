@@ -5,6 +5,8 @@
       <change beforePath="$PROJECT_DIR$/.idea/.idea.InteractiveMath/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.InteractiveMath/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BiPolyNumber.js" beforeDir="false" afterPath="$PROJECT_DIR$/BiPolyNumber.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PolyNumber.js" beforeDir="false" afterPath="$PROJECT_DIR$/PolyNumber.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core.js" beforeDir="false" afterPath="$PROJECT_DIR$/core.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests.js" beforeDir="false" afterPath="$PROJECT_DIR$/tests.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,62 +19,79 @@
     <favorites_list name="InteractiveMath" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/utils.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="505">
-              <caret line="54" column="32" lean-forward="true" selection-start-line="54" selection-start-column="32" selection-end-line="54" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/PolyNumber.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="536" column="8" lean-forward="true" selection-start-line="536" selection-start-column="8" selection-end-line="536" selection-end-column="8" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/BiPolyNumber.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1543">
-              <caret line="75" column="22" lean-forward="true" selection-start-line="75" selection-start-column="21" selection-end-line="75" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="11" column="29" lean-forward="true" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="475">
-              <caret line="19" column="16" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="325">
-              <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.9">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/utils.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="4680">
+                  <caret line="160" column="42" selection-start-line="160" selection-start-column="42" selection-end-line="160" selection-end-column="42" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/PolyNumber.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="547">
+                  <caret line="545" column="28" selection-start-line="545" selection-start-column="28" selection-end-line="545" selection-end-column="28" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/BiPolyNumber.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1201">
+                  <caret line="589" column="19" selection-start-line="589" selection-start-column="19" selection-end-line="589" selection-end-column="19" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/tests.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1030">
+                  <caret line="142" column="42" selection-start-line="142" selection-start-column="13" selection-end-line="142" selection-end-column="42" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/core.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="230">
+                  <caret line="25" column="14" selection-start-line="25" selection-start-column="6" selection-end-line="25" selection-end-column="14" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/index.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="325">
+                  <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/BiPolyNumber.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="106">
+                  <caret line="608" column="27" lean-forward="true" selection-start-line="608" selection-start-column="27" selection-end-line="608" selection-end-column="27" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -83,28 +102,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>ic mul(f</find>
-      <find>.reduce</find>
-      <find>_getProductPaths</find>
-      <find>is_zero</find>
-      <find>this.height()</find>
-      <find>array</find>
-      <find>Poly</find>
-      <find>zerosGrid</find>
-      <find>grid2D</find>
-      <find>first_column</find>
-      <find>string_width</find>
-      <find>replace</find>
-      <find>.scale(</find>
-      <find>.translate(</find>
-      <find>translate</find>
-      <find>.clear()</find>
-      <find>_isShifter</find>
-      <find>is_shifter</find>
-      <find>'number'</find>
-      <find>all_zeroes</find>
-      <find>zeros</find>
-      <find>zeroz</find>
       <find>every</find>
       <find>zero</find>
       <find>sum(</find>
@@ -113,6 +110,28 @@
       <find>_polynumber_test_cases.binary._add</find>
       <find>filter</find>
       <find>form</find>
+      <find>num</find>
+      <find>evalua</find>
+      <find>co</find>
+      <find>array_heights</find>
+      <find>separator</find>
+      <find>degree.column</find>
+      <find>length</find>
+      <find>const</find>
+      <find>for (let</find>
+      <find>for (</find>
+      <find>notation_lines</find>
+      <find>_printOpStrings</find>
+      <find>for</find>
+      <find>UNARY_OPS</find>
+      <find>isqr</find>
+      <find>result_expression</find>
+      <find>BINARY_OPS</find>
+      <find>suffix</find>
+      <find>printOperator</find>
+      <find>operator</find>
+      <find>printNumber</find>
+      <find>printStringNotation</find>
     </findStrings>
     <replaceStrings>
       <replace>deg</replace>
@@ -121,6 +140,9 @@
       <replace>.iscl(</replace>
       <replace>=new this()) {</replace>
       <replace>.iclr()</replace>
+      <replace>let</replace>
+      <replace>let</replace>
+      <replace>for (const</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -133,10 +155,10 @@
         <option value="$PROJECT_DIR$/polynumbers.js" />
         <option value="$PROJECT_DIR$/bipolynumbers.js" />
         <option value="$PROJECT_DIR$/index.html" />
-        <option value="$PROJECT_DIR$/core.js" />
-        <option value="$PROJECT_DIR$/tests.js" />
         <option value="$PROJECT_DIR$/BiPolyNumber.js" />
+        <option value="$PROJECT_DIR$/tests.js" />
         <option value="$PROJECT_DIR$/utils.js" />
+        <option value="$PROJECT_DIR$/core.js" />
         <option value="$PROJECT_DIR$/PolyNumber.js" />
       </list>
     </option>
@@ -153,9 +175,9 @@
     <auto-save>true</auto-save>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-14" />
+    <option name="x" value="-12" />
     <option name="width" value="1944" />
-    <option name="height" value="2084" />
+    <option name="height" value="2082" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -233,7 +255,7 @@
       <workItem from="1562648516269" duration="179000" />
       <workItem from="1562648711506" duration="127057000" />
       <workItem from="1563055594719" duration="99941000" />
-      <workItem from="1563265718827" duration="6911000" />
+      <workItem from="1563265718827" duration="81564000" />
     </task>
     <task id="LOCAL-00001" summary="PolyNumbers fully working and unit tested!">
       <created>1563264582228</created>
@@ -242,11 +264,18 @@
       <option name="project" value="LOCAL" />
       <updated>1563264582228</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Extracted form logic to sub-classes for row/column PolyNumbers">
+      <created>1563336013432</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1563336013432</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="236235000" />
+    <option name="totallyTimeSpent" value="310888000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -259,8 +288,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1719" height="932" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2519543" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.5173267" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Capture Tool" order="3" />
@@ -321,7 +351,8 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
   <component name="VcsManagerConfiguration">
     <MESSAGE value="PolyNumbers fully working and unit tested!" />
-    <option name="LAST_COMMIT_MESSAGE" value="PolyNumbers fully working and unit tested!" />
+    <MESSAGE value="Extracted form logic to sub-classes for row/column PolyNumbers" />
+    <option name="LAST_COMMIT_MESSAGE" value="Extracted form logic to sub-classes for row/column PolyNumbers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -358,36 +389,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="11" column="29" lean-forward="true" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+        <state relative-caret-position="1030">
+          <caret line="142" column="42" selection-start-line="142" selection-start-column="13" selection-end-line="142" selection-end-column="42" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/BiPolyNumber.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1543">
-          <caret line="75" column="22" lean-forward="true" selection-start-line="75" selection-start-column="21" selection-end-line="75" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/PolyNumber.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="536" column="8" lean-forward="true" selection-start-line="536" selection-start-column="8" selection-end-line="536" selection-end-column="8" />
+        <state relative-caret-position="1201">
+          <caret line="589" column="19" selection-start-line="589" selection-start-column="19" selection-end-line="589" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="475">
-          <caret line="19" column="16" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
+        <state relative-caret-position="230">
+          <caret line="25" column="14" selection-start-line="25" selection-start-column="6" selection-end-line="25" selection-end-column="14" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/utils.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="505">
-          <caret line="54" column="32" lean-forward="true" selection-start-line="54" selection-start-column="32" selection-end-line="54" selection-end-column="32" />
+        <state relative-caret-position="4680">
+          <caret line="160" column="42" selection-start-line="160" selection-start-column="42" selection-end-line="160" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PolyNumber.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="547">
+          <caret line="545" column="28" selection-start-line="545" selection-start-column="28" selection-end-line="545" selection-end-column="28" />
         </state>
       </provider>
     </entry>

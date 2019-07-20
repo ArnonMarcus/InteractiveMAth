@@ -227,7 +227,7 @@ const _polynumber_test_cases = {
     }
 };
 
-for (let [i, row] of _polynumber_test_cases.binary._add.entries()) {
+for (const [i, row] of _polynumber_test_cases.binary._add.entries()) {
     _polynumber_test_cases.poly.sum.push(row);
     if (i >= (4*4)) {
         _polynumber_test_cases.binary._subtract.push(
@@ -237,7 +237,7 @@ for (let [i, row] of _polynumber_test_cases.binary._add.entries()) {
     }
 }
 
-for (let [i, row] of _polynumber_test_cases.binary._multiply.entries()) {
+for (const [i, row] of _polynumber_test_cases.binary._multiply.entries()) {
     _polynumber_test_cases.poly.mul.push(row);
     if (i >= (7*4)) {
         _polynumber_test_cases.binary._divide.push(
@@ -254,7 +254,7 @@ function _testPolyNumber() {
     const left = new PolyNumber();
     const right = new PolyNumber();
     const expected_result = new PolyNumber();
-    const result = new PolyNumber();
+    let result = new PolyNumber();
     
     const poly_right = new PolyNumber();
     const poly_arg = [];
@@ -263,92 +263,92 @@ function _testPolyNumber() {
     
     let count = 0;
 
-    for (let op in _polynumber_test_cases.poly) {
-        for (let row of _polynumber_test_cases.poly[op]) {
+    for (const func in _polynumber_test_cases.poly) {
+        for (let row of _polynumber_test_cases.poly[func]) {
             row = [...row];
 
             side.left = row.shift();
             side.right = row.shift();
-            expected_result.co = row.pop();
+            expected_result.coefficients = row.pop();
 
             poly_arg.length = 0;
             
             switch (side.is_number) {
                 case SIDE.none: {
-                    left.co = side.left;
-                    right.co = side.right;
+                    left.coefficients = side.left;
+                    right.coefficients = side.right;
                     poly_arg.push(left, right);
                     break;
                 }
                 case SIDE.both: {
-                    left.co = null;
-                    right.co = null;
+                    left.coefficients = null;
+                    right.coefficients = null;
                     poly_arg.push(side.left, side.right);
                     break;
                 }
                 case SIDE.left: {
-                    right.co = side.right;
-                    left.co = null;
+                    right.coefficients = side.right;
+                    left.coefficients = null;
                     poly_arg.push(side.left, right);
                     break;
                 }
                 case SIDE.right: {
-                    left.co = side.left;
-                    right.co = null;
+                    left.coefficients = side.left;
+                    right.coefficients = null;
                     poly_arg.push(left, side.right);
                     break;
                 }
             }
             
             if (row.length > 0) {
-                poly_right.co = row.shift();
+                poly_right.coefficients = row.shift();
                 poly_arg.push(poly_right);
             }
-            // console.log(`PolyNumber.${op}(${left.co}) is ${expected_result.co}`);
-            PolyNumber[op](poly_arg, result);
+            // console.log(`PolyNumber.${op}(${left.coefficients}) is ${expected_result.coefficients}`);
+            result = PolyNumber[func](poly_arg, result);
             
             console.assert(result.equals(expected_result),
-                `PolyNumber.${op}(${poly_arg}) is ${expected_result.co} not ${result.co} !`);
+                `PolyNumber.${func}(${poly_arg}) is ${expected_result.coefficients} not ${result.coefficients} !`);
             
             count += 1;
         }
     }
     
-    for (let op in _polynumber_test_cases.binary) {
-        for (let [l, r, e] of _polynumber_test_cases.binary[op]) {
+    for (const func in _polynumber_test_cases.binary) {
+        for (let [l, r, e] of _polynumber_test_cases.binary[func]) {
             side.left = l;
             side.right = r;
-            expected_result.co = e;
+            expected_result.coefficients = e;
             
             switch (side.is_number) {
                 case SIDE.none: {
-                    left.co = l;
-                    right.co = r;
-                    PolyNumber[op](left, right, result);
+                    left.coefficients = l;
+                    right.coefficients = r;
+                    result = PolyNumber[func](left, right, result);
                     break;
                 }
                 case SIDE.both: {
-                    left.co = null;
-                    right.co = null;
-                    PolyNumber[op](l, r, result);
+                    left.coefficients = null;
+                    right.coefficients = null;
+                    result = PolyNumber[func](l, r, result);
                     break;
                 }
                 case SIDE.left: {
-                    right.co = r;
-                    left.co = null;
-                    PolyNumber[op](l, right, result);
+                    right.coefficients = r;
+                    left.coefficients = null;
+                    result = PolyNumber[func](l, right, result);
                     break;
                 }
                 case SIDE.right: {
-                    left.co = l;
-                    right.co = null;
-                    PolyNumber[op](left, r, result);
+                    left.coefficients = l;
+                    right.coefficients = null;
+                    result = PolyNumber[func](left, r, result);
                     break;
                 }
             }
 
             console.assert(result.equals(expected_result),
-                `PolyNumber.${op}(${typeof l}: ${l}, ${typeof r}: ${r}) is ${e} not ${result.co} !`);
+                `PolyNumber.${func}(${typeof l}: ${l}, ${typeof r}: ${r}) is ${e} not ${result.coefficients} !`);
 
             // console.log(`PolyNumber.${op}(${typeof l}: ${l}, ${typeof r}: ${r}) is ${e} `);
             count += 1;

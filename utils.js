@@ -1,106 +1,182 @@
+const OPS_NOTATION = {
+    '+': ' + ',
+    '-': ' - ',
+    'x': ' x ',
+    '/': ' / ',
+    '^': ' raised to the power of ',
+    '<': ' replaced with ',
+    '>': ' shifted by ',
+    '|': ' translated by ',
+    '*': ' scaled by ',
+    '~': ' equals ',
+    '=': ' = ',
+    '!': 'inverse of ',
+    '%': 'transpose of ',
+    '0': 'cleared ',
+    '1': 'copy of ',
+    '2': '²',
+    '3': '³'
+};
 
-function _print(p, string_arrays) {
-    const string_array = typeof p === 'number' ? `${p}` : p.string_rows;
-    const height = string_array.length;
-    const width = string_array[0].length;
+const OPS_EXPRESSION = {
+    '+': ' + ',
+    '-': ' - ',
+    'x': '',
+    '/': ' / ',
+    '^': '^',
+    '<': ' <= ',
+    '>': ' >> ',
+    '|': ' > ',
+    '*': ' * ',
+    '~': ' ?= ',
+    '!': '-',
+    '%': '%',
+    '0': '0*',
+    '1': '',
+    '2': '²',
+    '3': '³',
+    '=': ' = '
+};
 
-    if (height < string_arrays.length) {
-        string_array.length = string_arrays.length;
-        const spacer = Array(width).fill(' ').join('');
-        for (let h = height; h < string_arrays.length; h++)
-            string_array[h] = spacer;
+class OutputStream {
+    lines = [];
+
+    get height() {return this.lines.length}
+    get width() {return this.lines.length === 0 ? 0 : this.lines[0].length};
+    get latest_width() {return this.lines[this.lines.length - 1].length}
+
+    print(lines) {
+        if (Array.isArray(lines)) {
+            if (lines.length === 0) 
+                return;
+        } else lines = [lines];
+        
+        const diff = this.lines.length - lines.length;
+        if (diff > 0) lines.push(...Array(diff).fill(' '.repeat(lines[0].length)));
+        if (diff < 0) this.lines.push(...Array(-diff).fill(' '.repeat(this.width)));
+
+        for (let [l, line] of lines.entries())
+            this.lines[l] += line;
     }
-
-    for (let [s, string] of string_array.entries())
-        string_arrays[s] += string;
-}
-
-function _printOp(op, string_arrays) {
-    _printOpStrings(_makeOpStrings(op, string_arrays.length), string_arrays)
-}
-function _printOpStrings(op_strings, string_arrays) {
-    for (let [o, op_string] of op_strings.entries())
-        string_arrays[o] += op_string;
-}
-function _makeOpStrings(op, total_height) {
-    const op_strings = Array(total_height);
-
-    for (let o of op_strings.keys())
-        op_strings[o] = Array(3).fill(' ').join('');
-
-    op_strings[total_height === 1 ? 0 : 1] = ` ${op} `;
-
-    return op_strings
 }
 
 const P = (...array) => new PolyNumber(array);
-const R = (...array) => new RowPolyNumber(array);
-const C = (...array) => new ColumnPolyNumber(array);
 const B = (...array) => new BiPolyNumber(array);
 
 
 function pr(...args) {
-    const string_arrays = [];
-    const ops = [];
-    const array = [];
-    const standard_form_array = [];
-    let standard_form;
+    const numbers = [];
+    const operators = [];
     
-    for (let item of args) {
-        if (item in BINARY_OPS || item in UNARY_OPS)
-            ops.push(item);
-        else array.push(item);
+    for (const arg of args)
+        if (typeof arg === 'string')
+            operators.push(arg === '=' ? '~' : arg);
+        else
+            numbers.push(arg);
+    
+    const notation_stream_1 = new OutputStream();
+    const notation_stream_2 = new OutputStream();
+    const expressions = [];
+
+    const first_number = numbers.shift();
+    if (first_number === undefined) throw 'No numbers provided!';
+    
+    function printNumberExpression(number, wrap=false) {
+        const expression = is_poly(number) ? number.expression : `${number}`;
+        expressions.push(wrap ? `(${expression})` : expression);
+    }
+    
+    function printExpression(number, operator='', postfix=false, wrap=false) {
+        const operator_string = operator.length === 0 ? '' : OPS_EXPRESSION[operator];
+        const prefix = postfix ? '' : operator_string;
+        const suffix = postfix ? operator_string : '';
+        
+        expressions.push(prefix);
+        printNumberExpression(number, wrap);
+        expressions.push(suffix);
     }
 
-    const first = array.shift();
-    if (array.length === 0) {
-        standard_form = first.toStandardForm();
+    function printStringNotation(string, shift=true) {
+        if (string === null) return;
+        if (typeof string !== 'string') string = `${string}`;
+        if (string.length === 0) return;
 
-        string_arrays.length = typeof first === 'number' ? 1 : first.string_height;
-        string_arrays.fill('');
-        
-        const op = ops[0];
-        if (op in UNARY_OPS) {
-            const result = first.copy()[UNARY_OPS[op]]();
-            
-            _printOp(op, string_arrays);
-            _print(first, string_arrays);
-            _printOp('=', string_arrays);
-            _print(result, string_arrays);
-
-            standard_form_array.push(`${op === '!' ? '-' : op}(${standard_form}) = ${result}`);
+        const lines = shift ? [' '.repeat(string.length), string] : [string];
+        notation_stream_1.print(lines);
+        // notation_stream_2.print(lines);
+    }
+    
+    function printNumberNotation(number) {
+        if (is_poly(number)) {
+            notation_stream_1.print(number.notation_lines);
+            // notation_stream_2.print(number.ext_notation_lines);
+        } else printStringNotation(number);
+    }
+    
+    function printNotation(number, operator='', postfix=true, shift=true) {
+        if (postfix) {
+            printNumberNotation(number);
+            if (operator.length !== 0)
+                printStringNotation(OPS_NOTATION[operator], shift);
         } else {
-            _print(first, string_arrays);
-            standard_form_array.push(standard_form);
+            if (operator.length !== 0)
+                printStringNotation(OPS_NOTATION[operator], shift);
+            printNumberNotation(number);
         }
-    } else {
-        const result = first.copy();
-        for (let [op, item] of zip(ops, array))
-            result[BINARY_OPS[op]](item);
-        
-        array.unshift(first);
-        array.push(result);
-        const array_heights = array.map((p) => typeof p === 'number' ? 1 : p.string_height);
-        string_arrays.length = max(...array_heights);
-        string_arrays.fill('');
-        array.pop();
-        ops.push('=');
-        
-        for (let [item, op] of zip(array, ops)) {
-            standard_form = typeof item === 'number' ? `${item}` : item.toStandardForm();
-            standard_form_array.push(`(${standard_form})${op === 'x' ? '' : ` ${op} `}`);
-            _print(item, string_arrays);
-            _printOp(op, string_arrays);
-        }
+    }
 
-        standard_form_array.push(result.toStandardForm());
-        _print(result, string_arrays);
+    function printPair(number, operator='') {
+        const postfix = operator === '2' || operator === '3';
+        const shift_notation = !postfix;
+        const wrap_expression = operator !== '=' && typeof number !== 'number';
         
-        standard_form = standard_form_array.join('');
-        const separator = Array(standard_form.length).fill('_').join('');
-        string_arrays.push(`${separator}\n\n${standard_form}\n`);
+        printNotation(number, operator, postfix, shift_notation);
+        printExpression(number, operator, postfix, wrap_expression);
     }
     
-    console.log(`\n${string_arrays.join('\n')}\n`);
+    if (operators.length === 0) {
+        if (numbers.length > 0)
+            throw 'Multiple numbers provided with no operator!';
+
+        printNumberNotation(first_number);
+        printNumberExpression(first_number);
+    } else {
+        let result_number = first_number.copy();
+
+        if (numbers.length === 0) {
+            const operator = operators[0];
+            if (operators.length > 1) throw `A single number can only be operated on by a single operator!`;
+            if (!(operator in UNARY_OPS)) throw 'A single number can only be operated on by a unary operator!';
+
+            printPair(first_number, operator);
+            result_number = result_number[UNARY_OPS[operator]]();
+        } else {
+            if (operators.length !== numbers.length)
+                throw 'Miss-match amount of numbers and operators!';
+
+            printNumberNotation(first_number);
+            printNumberExpression(first_number, true);
+            
+            for (const [operator, number] of zip(operators, numbers)) {
+                printPair(number, operator);
+                result_number = result_number[BINARY_OPS[operator]](number);
+            }
+        }
+
+        printPair(result_number, '=');
+    }
+
+    printStringNotation('  =>');
+    
+    const out_stream = [
+        ...notation_stream_1.lines,
+        // ...notation_stream_2.lines,
+        '',
+        expressions.join('')
+    ];
+
+    console.log(`\n${out_stream.join('\n')}\n`);
+    
+    return expressions[expressions.length - 2];
 }
 

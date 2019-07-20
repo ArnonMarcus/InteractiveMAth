@@ -1,28 +1,21 @@
 class BiPolyNumber {
     columns = [];
-    column_form = FORM.alpha;
-    row_form = FORM.beta;
-
 
     constructor(columns=[]) {
-        for (let column of columns)
+        for (const column of columns)
             this.columns.push(column instanceof PolyNumber ? column : new PolyNumber(column));
     }
 
     static fromRowAndColumn(row, column) {
-        if (column.length === 0)
-            column.push(0);
-
-        if (row.length === 0)
-            row.push(0);
-
-        let columns = [column instanceof PolyNumber ? column.co : column];
+        column = column instanceof PolyNumber ? column.coefficients : column;
+        row = row instanceof PolyNumber ? row.coefficients : row;
+        if (column.length === 0) column.push(0);
+        if (row.length === 0) row.push(0);
+        
+        const columns = [[...column]];
         columns.length = row.length;
 
-        if (row instanceof PolyNumber)
-            row = row.co;
-
-        for (let [i, co] of row.entries()) {
+        for (const [i, co] of row.entries()) {
             if (i === 0)
                 columns[i][0] += co;
             else
@@ -31,9 +24,66 @@ class BiPolyNumber {
 
         return new BiPolyNumber(columns);
     }
+    
+    toString() {return this.expression};
+    get expression() {
+        if (this.is_zero)
+            return `0${NOTATION.ALPHA}°${NOTATION.BETA}°`;
 
-    toString() {return this._toStringArray().join('\n')};
-    _toStringArray() {
+        const row_degrees = this.getRowDegrees();
+        const column_degrees = this.getColumnDegrees();
+        const degree = {row: null, column: null};
+        const suffix = {row: null, column: null};
+        const is_first = {row: null, column: null};
+        const string_parts = [];
+    
+        let prefix;
+        let coefficient;
+        let is_first_non_zero;
+
+        for (const [i, p] of this.columns.entries()) {
+            degree.column = column_degrees[i];
+
+            for (const [row_index, value] of p.coefficients.entries()) {
+                degree.row = row_degrees[row_index];
+
+                if (value === 0 || (
+                        row_index > degree.row && 
+                        i > degree.column
+                    ))
+                    continue;
+
+                is_first.row = row_index === 0;
+                is_first.column = i === 0;
+                if (is_first.row && is_first.column) {
+                    string_parts.push(value);
+                    continue;
+                }
+
+                is_first_non_zero = string_parts.length === 0;
+
+                suffix.row = PolyNumber._formatSuffix(i);
+                suffix.column = PolyNumber._formatSuffix(row_index);
+
+                prefix = PolyNumber._formatPrefix(value, is_first_non_zero);
+                coefficient = PolyNumber._formatValue(value, is_first_non_zero);
+
+                string_parts.push([
+                    prefix, 
+                    coefficient,
+                    is_first.row ? '' : NOTATION.BETA, 
+                    suffix.row,
+                    is_first.column ? '' : NOTATION.BETA, 
+                    suffix.column
+                ].join(''));
+            }
+        }
+
+        return string_parts.join('');
+    }
+
+    get notation() {return this.notation_lines.join('\n')};
+    get notation_lines() {
         if (this.is_zero)
             return ['┏━┓', '┃0', '┗'];
 
@@ -45,11 +95,11 @@ class BiPolyNumber {
         const column_strings = Array(width);
         const rows = grid2D(height, width, 0);
 
-        for (let [c, p] of this.columns.entries()) {
+        for (const [c, p] of this.columns.entries()) {
             co_widths.fill(1);
             co_strings.fill('0');
 
-            for (let [i, co] of p.co.entries()) {
+            for (const [i, co] of p.coefficients.entries()) {
                 co_strings[i] = `${co}`;
                 co_widths[i] = co_strings[i].length;
             }
@@ -58,8 +108,7 @@ class BiPolyNumber {
             column_strings[c] = [...co_strings];
         }
 
-        
-        for (let [column_index, column] of column_strings.entries()) {
+        for (const [column_index, column] of column_strings.entries()) {
             for (let [row_index, string] of column.entries()) {
                 for (let l = string.length; l < column_widths[column_index]; l++)
                     string += ' ';
@@ -67,155 +116,67 @@ class BiPolyNumber {
                 rows[row_index][column_index] = string;
             }
         }
-        
+
         const header_length = sum(column_widths) + width - 1;
-        const header = `┏${Array(header_length).fill('━').join('')}┓`;
-
-        let result = rows.map((row) => `┃${row.join(' ')} `);
-        result.unshift(header);
-        result.push(`┗${Array(header_length + 1).fill(' ').join('')}`);
-        
-        return result
+        return [
+            '┏'+'━'.repeat(header_length)+'┓',
+            ...rows.map((row) => `┃${row.join(' ')} `),
+            '┗'+' '.repeat(header_length + 1)
+        ]
     }
+    
+    get height() {return max(...this.column_heights)}
+    get width() {return this.columns.length}
 
-    toStandardForm() {
-        if (this.is_zero)
-            return `0${this.column_form}°${this.row_form}°`;
+    get column_degrees() {return this.columns.map(p => p.deg)}
+    get column_heights() {return this.columns.map(p => p.height)}
+    get column_widths() {return this.columns.map(p => p.width)}
 
-        const row_degrees = this.getRowDegrees();
-        const column_degrees = this.getColumnDegrees();
-        
-        const result = [];
-
-        let row_form;
-        let row_degree;
-        let row_suffix;
-        let row_is_first;
-        
-        let column_form;
-        let column_degree;
-        let column_suffix;
-        let column_is_first;
-        
-        let term;
-        let prefix;
-        let coefficient;
-        let is_first_non_zero;
-        
-        for (let [column_index, polynumber] of this.columns.entries()) {
-            column_degree = column_degrees[column_index];
-            
-            for (let [row_index, value] of polynumber.co.entries()) {
-                row_degree = row_degrees[row_index];
-                
-                if (value === 0 || (row_index > row_degree && column_index > column_degree))
-                    continue;
-
-                row_is_first = row_index === 0;
-                column_is_first = column_index === 0;
-                if (row_is_first && column_is_first) {
-                    result.push(value);
-                    continue;
-                }
-
-                is_first_non_zero = result.length === 0;
-
-                row_suffix = PolyNumber._formatSuffix(column_index);
-                column_suffix = PolyNumber._formatSuffix(row_index);
-
-                prefix = PolyNumber._formatPrefix(value, is_first_non_zero);
-                coefficient = PolyNumber._formatValue(value, is_first_non_zero);
-
-                column_form = row_is_first ? '' : this.column_form;
-                row_form = column_is_first ? '' : this.row_form;
-
-                term = [prefix, coefficient, column_form, column_suffix, row_form, row_suffix];
-                result.push(term.join(''));
-            }
-        }
-
-        return result.join('');
-    }
+    get row_degrees() {return this.rows.map(p => p.deg)}
+    get row_heights() {return this.rows.map(p => p.height)}
+    get row_widths() {return this.rows.map(p => p.width)}
+    
+    get notation_height() {return this.height + 2}
+    get notation_width() {return sum(this.notation_column_widths) - this.width + 2}
+    
+    get notation_column_heights() {return this.columns.map(p => p.notation_height)}
+    get notation_column_widths() {return this.columns.map(p => p.notation_width)}
+    get notation_row_heights() {return this.rows.map(p => p.notation_height)}
+    get notation_row_widths() {return this.rows.map(p => p.notation_width)}
 
     get msc() {
-        const transposed = this.transposed;
-        
-        const column_degrees = this.getColumnDegrees();
-        const row_degrees = this.getRowDegrees(transposed);
-        
-        const max_column_degree = max(...column_degrees);
-        const max_row_degree = max(...row_degrees);
-        
-        let msc_columns;
-        let msc_rows;
-        
-        for (let column of [...this.columns].reverse()) {
-            if (column.deg === max_column_degree) {
-                msc_columns = column.msc;
-                break;
-            }
-        }
-
-        for (let row of [...transposed.columns].reverse()) {
-            if (row.deg === max_row_degree) {
-                msc_rows = row.msc;
-                break;
-            }
-        }
-        
-        return {x: msc_rows, y: msc_columns};
-    };  
+        return {
+            x: this.row_degrees.reverse().indexOf(this.degX), 
+            y: this.column_degrees.reverse().indexOf(this.degY)
+        };
+    };
 
     get rows() {
         const rows = grid2D(this.width, this.height, 0);
-        for (let [c, column] of this.columns.entries())
-            for (let [r, co] of column.co.entries())
-                rows[c][r] = co;
+        for (const [c, column] of this.columns.entries())
+            for (const [r, coefficient] of column.coefficients.entries())
+                rows[c][r] = coefficient;
 
-        return rows.map(row => new PolyNumber(row));
+        return rows.map(row => new PolyNumber(row, ORIENTATION.ROW));
     }
 
-    get degX() {return max(...this.getRowDegrees())}
-    get degY() {return max(...this.getColumnDegrees())}
+    get degX() {return max(...this.row_degrees)}
+    get degY() {return max(...this.column_degrees)}
     get deg() {
-        if (this.is_zero)
-            return undefined;
-
-        if (this.columns.length === 1)
-            return {x: 0, y: this.columns[0].deg};
-
-        return {x: this.degX, y: this.degY}
+        if (!this.is_zero)
+            return this.columns.length === 1 ? 
+                {x: 0,         y: this.columns[0].deg} : 
+                {x: this.degX, y: this.degY};
     }
-
-    get width() {return this.columns.length}
-    get height() {return max(...this.getColumnHeights())}
-    get string_height() {return this.height + 2}
-
-    getColumnDegrees = () => this.columns.map(p => p.deg);
-    getColumnHeights = () => this.columns.map(p => p.co.length);
-
-    getRowWidths(transposed=null) {
-        if (transposed === null)
-            transposed = this.transposed;
-
-        return transposed.getColumnHeights();
-    }
-    getRowDegrees(transposed=null) {
-        if (transposed === null)
-            transposed = this.transposed;
-
-        return transposed.getColumnDegrees();
-    }
-
-    get is_zero() {return this.zeros()}
-    zeros = (up_to=null) => this.columns.slice(0, 
-        up_to === null ? this.columns.length : up_to).every(p => p.is_zero);
+    
+    get is_zero() {return all_zeros(this.columns)}
+    allZeros = (up_to=this.columns.length) => all_zeros(this.columns, up_to);
     copy = () => new this.constructor(this.columns.map(p => p.copy()));
     equals(other) {
         if (this.columns.length !== other.columns.length)
             return false;
 
-        for (let [c, column] of this.columns.entries())
+        for (const [c, column] of this.columns.entries())
             if (!column.equals(other.columns[c]))
                 return false;
 
@@ -223,7 +184,7 @@ class BiPolyNumber {
     }
     
     iclr() {
-        for (let column of this.columns)
+        for (const column of this.columns)
             column.iclr();
 
         return this;
@@ -240,13 +201,13 @@ class BiPolyNumber {
         
         if (other instanceof this) {
             replaced.columns.length = other.columns.length;
-            for (let [c, column] of other.columns.entries())
+            for (const [c, column] of other.columns.entries())
                 replaced.columns[c] = column.copy();
         }
             
         if (Array.isArray(other)) {
             replaced.columns.length = other.length;
-            for (let [c, column] of other.entries())
+            for (const [c, column] of other.entries())
                 replaced.columns[c] = column instanceof PolyNumber ? column : new PolyNumber(column);
         }
         
@@ -264,9 +225,9 @@ class BiPolyNumber {
         if (!(inverted instanceof this))
             inverted = bi_polynumber.copy();
 
-        for (let column of inverted.columns)
-            for (let i of column.co.keys())
-                column.co[i] *= -1;
+        for (const column of inverted.columns)
+            for (const i of column.coefficients.keys())
+                column.coefficients[i] *= -1;
 
         return inverted;
     }
@@ -295,7 +256,7 @@ class BiPolyNumber {
         }
 
         if (offset_y !== 0) {
-            for (let column of shifted.columns)
+            for (const column of shifted.columns)
                 column.ishf(offset_y);
         }
 
@@ -342,13 +303,13 @@ class BiPolyNumber {
 
         translated.irep(bi_polynumber);
         if (amount !== 0)
-            for (let column of translated.columns) {
+            for (const column of translated.columns) {
                 const deg = column.deg;
                 if (deg === undefined)
-                    column.co[0] = amount;
+                    column.coefficients[0] = amount;
                 else
                     for (let i = 0; i <= deg; i++)
-                        column.co[i] += amount;
+                        column.coefficients[i] += amount;
             }
 
         return translated;
@@ -371,7 +332,7 @@ class BiPolyNumber {
         if (factor === -1)
             return this._inverse(bi_polynumber, scaled);
 
-        for (let column of scaled.columns)
+        for (const column of scaled.columns)
             column.iscl(factor);
 
         return scaled;
@@ -436,16 +397,16 @@ class BiPolyNumber {
         const empty = sum.columns[0];
         
         sum.columns.length = width;
-        empty.co.length = height;
-        empty.co.fill(0);
+        empty.coefficients.total_length = height;
+        empty.coefficients.fill(0);
         
         for (let c = 1; c < width; c++)
             sum.columns[c] = empty.copy();
             
-        for (let bi_polynumber of bi_polynumbers)
-            for (let [x, column] of bi_polynumber.columns)
-                for (let [y, co] of column.co.entries())
-                    sum.columns[x].co[y] += co;
+        for (const bi_polynumber of bi_polynumbers)
+            for (const [x, column] of bi_polynumber.columns)
+                for (const [y, co] of column.coefficients.entries())
+                    sum.columns[x].coefficients[y] += co;
 
         return sum;
     }
@@ -518,14 +479,14 @@ class BiPolyNumber {
             case SIDE.right: return product.irep(left).ishf(deg.right.x, deg.right.y);
         }
 
-        let columns = [];
-        for (let column of left.columns)
+        const columns = [];
+        for (const column of left.columns)
             columns.push(Object.is(left, product) ? [...column.co] : column.co);
 
         product.iclr();
 
-        for (let [x, column] of columns.entries())
-            for (let [y, co] of column.entries())
+        for (const [x, column] of columns.entries())
+            for (const [y, co] of column.entries())
                 if (co !== 0)
                     product.iadd(right.scaledBy(co).ishf(x, y));
 
@@ -552,15 +513,15 @@ class BiPolyNumber {
         const values = [];
         const results = [];
 
-        for (let [x, y_paths] of product_paths.entries()) {
+        for (const [x, y_paths] of product_paths.entries()) {
             column.length = y_paths.length;
             
-            for (let [y, paths] of y_paths.entries()) {
+            for (const [y, paths] of y_paths.entries()) {
                 results.length = paths.length;
 
-                for (let [i, path] of paths.entries()) {
-                    for (let [f, [fx, fy]] of path.entries())
-                        values.push(factors[f].columns[fx].co[fy]);
+                for (const [i, path] of paths.entries()) {
+                    for (const [f, [fx, fy]] of path.entries())
+                        values.push(factors[f].columns[fx].coefficients[fy]);
 
                     results[i] = mul(values);
                 }
@@ -601,7 +562,7 @@ class BiPolyNumber {
         }
 
         if (deg.right.x === 0 && deg.right.y === 0 && deg.left.x === 0 && deg.left.y === 0)
-            return quotient.irep(dividend.columns[0].co[0] / divisor.columns[0].co[0]);
+            return quotient.irep(dividend.columns[0].coefficients[0] / divisor.columns[0].coefficients[0]);
 
         const shifter = new Sides(dividend.is_shifter, divisor.is_shifter);
         switch (shifter.is) {
@@ -659,24 +620,24 @@ class BiPolyNumber {
     // evaluatedAt(num) {
     //     switch (this.deg) {
     //         case DEGREE.Undefined: return 0;
-    //         case DEGREE.Number: return this.co[0];
-    //         case DEGREE.Linear: return this.co[0] + this.co[1] * num;
+    //         case DEGREE.Number: return this.coefficients[0];
+    //         case DEGREE.Linear: return this.coefficients[0] + this.coefficients[1] * num;
     //     }
     //
-    //     let result = this.co[0] + this.co[1] * num;
-    //     for (let i = 2; i <= this.deg; i++)
-    //         result += this.co[i] * pow(num, i);
+    //     let result = this.coefficients[0] + this.coefficients[1] * num;
+    //     for (const i = 2; i <= this.deg; i++)
+    //         result += this.coefficients[i] * pow(num, i);
     //
     //     return result;
     // }
     //
     // evaluatedToZero() {
     //     switch (this.deg) {
-    //         case DEGREE.Linear: return -this.co[0] / this.co[1];
+    //         case DEGREE.Linear: return -this.coefficients[0] / this.coefficients[1];
     //         case DEGREE.Quadratic: {
-    //             const a = this.co[2];
-    //             const b = this.co[1];
-    //             const c = this.co[0];
+    //             const a = this.coefficients[2];
+    //             const b = this.coefficients[1];
+    //             const c = this.coefficients[0];
     //
     //             const two_a = 2 * a;
     //             const sqrt_of__b_squared_minus_4ac = sqrt(sqr(b) - 4*a*c);
@@ -691,7 +652,7 @@ class BiPolyNumber {
     static _sumDegrees(degrees) {
         const result = {x: 0, y: 0};
 
-        for (let degree of degrees) {
+        for (const degree of degrees) {
             result.x += degree.x;
             result.y += degree.y;
         }

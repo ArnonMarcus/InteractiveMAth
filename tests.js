@@ -269,46 +269,46 @@ function _testPolyNumber() {
 
             side.left = row.shift();
             side.right = row.shift();
-            expected_result.coefficients = row.pop();
+            expected_result.array = row.pop();
 
             poly_arg.length = 0;
             
             switch (side.is_number) {
                 case SIDE.none: {
-                    left.coefficients = side.left;
-                    right.coefficients = side.right;
+                    left.array = side.left;
+                    right.array = side.right;
                     poly_arg.push(left, right);
                     break;
                 }
                 case SIDE.both: {
-                    left.coefficients = null;
-                    right.coefficients = null;
+                    left.array = null;
+                    right.array = null;
                     poly_arg.push(side.left, side.right);
                     break;
                 }
                 case SIDE.left: {
-                    right.coefficients = side.right;
-                    left.coefficients = null;
+                    right.array = side.right;
+                    left.array = null;
                     poly_arg.push(side.left, right);
                     break;
                 }
                 case SIDE.right: {
-                    left.coefficients = side.left;
-                    right.coefficients = null;
+                    left.array = side.left;
+                    right.array = null;
                     poly_arg.push(left, side.right);
                     break;
                 }
             }
             
             if (row.length > 0) {
-                poly_right.coefficients = row.shift();
+                poly_right.array = row.shift();
                 poly_arg.push(poly_right);
             }
-            // console.log(`PolyNumber.${op}(${left.coefficients}) is ${expected_result.coefficients}`);
+            // console.log(`PolyNumber.${op}(${left.array}) is ${expected_result.array}`);
             result = PolyNumber[func](poly_arg, result);
             
             console.assert(result.equals(expected_result),
-                `PolyNumber.${func}(${poly_arg}) is ${expected_result.coefficients} not ${result.coefficients} !`);
+                `PolyNumber.${func}(${poly_arg}) is ${expected_result.array} not ${result.array} !`);
             
             count += 1;
         }
@@ -318,37 +318,37 @@ function _testPolyNumber() {
         for (let [l, r, e] of _polynumber_test_cases.binary[func]) {
             side.left = l;
             side.right = r;
-            expected_result.coefficients = e;
+            expected_result.array = e;
             
             switch (side.is_number) {
                 case SIDE.none: {
-                    left.coefficients = l;
-                    right.coefficients = r;
+                    left.array = l;
+                    right.array = r;
                     result = PolyNumber[func](left, right, result);
                     break;
                 }
                 case SIDE.both: {
-                    left.coefficients = null;
-                    right.coefficients = null;
+                    left.array = null;
+                    right.array = null;
                     result = PolyNumber[func](l, r, result);
                     break;
                 }
                 case SIDE.left: {
-                    right.coefficients = r;
-                    left.coefficients = null;
+                    right.array = r;
+                    left.array = null;
                     result = PolyNumber[func](l, right, result);
                     break;
                 }
                 case SIDE.right: {
-                    left.coefficients = l;
-                    right.coefficients = null;
+                    left.array = l;
+                    right.array = null;
                     result = PolyNumber[func](left, r, result);
                     break;
                 }
             }
 
             console.assert(result.equals(expected_result),
-                `PolyNumber.${func}(${typeof l}: ${l}, ${typeof r}: ${r}) is ${e} not ${result.coefficients} !`);
+                `PolyNumber.${func}(${typeof l}: ${l}, ${typeof r}: ${r}) is ${e} not ${result.array} !`);
 
             // console.log(`PolyNumber.${op}(${typeof l}: ${l}, ${typeof r}: ${r}) is ${e} `);
             count += 1;

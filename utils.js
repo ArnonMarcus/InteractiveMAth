@@ -82,7 +82,7 @@ function pr(...args) {
     if (first_number === undefined) throw 'No numbers provided!';
     
     function printNumberExpression(number, wrap=false) {
-        const expression = is_poly(number) ? number.expression : `${number}`;
+        const expression = pol(number) ? number.expression : `${number}`;
         expressions.push(wrap ? `(${expression})` : expression);
     }
     
@@ -103,13 +103,13 @@ function pr(...args) {
 
         const lines = shift ? [' '.repeat(string.length), string] : [string];
         notation_stream_1.print(lines);
-        // notation_stream_2.print(lines);
+        notation_stream_2.print(lines);
     }
     
     function printNumberNotation(number) {
-        if (is_poly(number)) {
-            notation_stream_1.print(number.notation_lines);
-            // notation_stream_2.print(number.ext_notation_lines);
+        if (pol(number)) {
+            notation_stream_1.print(number.notation.lines);
+            notation_stream_2.print(number.extended.lines);
         } else printStringNotation(number);
     }
     
@@ -133,6 +133,8 @@ function pr(...args) {
         printNotation(number, operator, postfix, shift_notation);
         printExpression(number, operator, postfix, wrap_expression);
     }
+
+    let result_number = first_number.copy();
     
     if (operators.length === 0) {
         if (numbers.length > 0)
@@ -141,8 +143,6 @@ function pr(...args) {
         printNumberNotation(first_number);
         printNumberExpression(first_number);
     } else {
-        let result_number = first_number.copy();
-
         if (numbers.length === 0) {
             const operator = operators[0];
             if (operators.length > 1) throw `A single number can only be operated on by a single operator!`;
@@ -168,15 +168,18 @@ function pr(...args) {
 
     printStringNotation('  =>');
     
+    const result_expression = expressions.join('');
     const out_stream = [
         ...notation_stream_1.lines,
-        // ...notation_stream_2.lines,
-        '',
-        expressions.join('')
+        '', //'─'.repeat(result_expression.length),
+        ...notation_stream_2.lines,
+        '', //'─'.repeat(result_expression.length),
+        result_expression,
+        '', //'─'.repeat(result_expression.length)
     ];
 
     console.log(`\n${out_stream.join('\n')}\n`);
     
-    return expressions[expressions.length - 2];
+    return result_number;
 }
 

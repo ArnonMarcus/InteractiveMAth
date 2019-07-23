@@ -1,114 +1,66 @@
-
-
 class PolyNumber {
-    variable;
+    form;
+    array;
     orientation;
-    coefficients;
     
-    constructor(coefficients=[0], orientation=ORIENTATION.COLUMN) {
-        this.variable = VARIABLES[orientation];
+    static FORMS = ['x', 'y'];
+    static EXPRESSION = new Expression();
+    static NOTATION = [new ColumnNotation(), new RowNotation()];
+    static EXTENDED = [new ColumnExtended(), new RowExtended()];
+
+    constructor(array=[], orientation=ORIENTATION.COLUMN) {
         this.orientation = orientation;
-        this.coefficients = coefficients instanceof PolyNumber ? 
-            coefficients.coefficients : coefficients;
+        this.array = array instanceof this.constructor ? array.array : array;
+        if (this.array.length === 0) this.array.push(this.constructor.zero());
+
+        this.form = this.constructor.FORMS[orientation];
     }
+    toString() {return this.expression.toString()};
+
+    get expression() {return this.constructor.EXPRESSION.of(this)}
+    get extended() {return this.constructor.EXTENDED[this.orientation].of(this)}
+    get notation() {return this.constructor.NOTATION[this.orientation].of(this)}
     
-    toString() {return this.expression};
-    get expression() {
-        if (this.is_zero) return `0${this.variable}°`;
-
-        const lines = [];
-        const deg = this.deg;
-
-        let suffix;
-        let prefix;
-        let coefficient;
-        let is_first_non_zero;
-        
-        for (const [index, value] of this.coefficients.entries()) {
-            if (value === 0 || index > deg) continue;
-            if (index === 0) {lines.push(value); continue;}
-
-            is_first_non_zero = this.allZeros(index);
-            suffix = this.constructor._formatSuffix(index);
-            prefix = this.constructor._formatPrefix(value, is_first_non_zero);
-            coefficient = this.constructor._formatValue(value, is_first_non_zero);
-
-            lines.push([prefix, coefficient, this.variable, suffix].join(''));
-        }
-
-        return lines.join('');
-    }
-
-    get notation() {return this.notation_lines.join('\n')};
-    get notation_height() {return this.is_row ? 3 : this.height + 1}
-    get notation_width() {return 3 + this.is_row ? this.total_length : this.max_length}
-    get notation_lines() {
-        const width = this.is_row ? this.total_length : this.max_length;
-        return this.is_row ? [
-            '┏'.padEnd(width + 1),
-            '┃'+this.string+' )',
-            '┗'.padEnd(width + 1)
-        ] : [
-            '┏'+'━'.repeat(width)+'┓',
-            ...this.strings.map(
-                (s) => s
-                    .padEnd(s.length + 1)
-                    .padStart( width + 2)
-            )
-        ]
-    }
-
     get is_row() {return this.orientation === ORIENTATION.ROW}
     get is_column() {return this.orientation === ORIENTATION.COLUMN}
     
-    get height() {return this.is_row ? 1 : this.coefficients.length}
-    get width() {return this.is_column ? 1 : this.coefficients.length}
-
-    get string() {return this.strings.join(' ')}
-    get strings() {return strings(this.coefficients)}
-
-    get lengths() {return lengths(this.strings)}
-    get total_length() {return this.string.length}
-    get max_length() {return max(...this.lengths)}
-    get sum_lengths() {return sum(this.lengths)}
+    get height() {return this.is_row ? 1 : this.array.length}
+    get width() {return this.is_column ? 1 : this.array.length}
     
-    get msc() {return this.coefficients[this.deg]}
+    get msc() {return this.array[this.deg]}
     get deg() {
-        for (let i = this.coefficients.length - 1; i >= 0; i--)
-            if (this.coefficients[i] !== 0)
+        for (let i = this.array.length - 1; i >= 0; i--)
+            if (this.array[i] !== 0)
                 return i;
     }
+
+    static zero() {return 0}
+    get is_zero() {return this.array.is_zero()}
+    zeros = (up_to=this.array.length) => this.array.is_zero(up_to);
     
-    get is_zero() {return this.coefficients.every(__ZER_MAP)}
-    allZeros = (up_to=this.coefficients.length) => all_zeros(this.coefficients, up_to);
-    copy = () => new this.constructor([...this.coefficients]);
+    copy = () => new this.constructor([...this.array]);
     equals(other) {
         const deg = new Sides(this.deg, other.deg);
 
         if (deg.left !== deg.right) return false;
         if (deg.max !== undefined)
             for (let i = 0; i <= deg.max; i++)
-                if (this.coefficients[i] !== other.coefficients[i])
+                if (this.array[i] !== other.array[i])
                     return false;
 
         return true;
     }
     
-    iclr() {
-        this.coefficients.length = 1;
-        this.coefficients[0] = 0;
-        return this;
-    }
-
+    iclr() {this.array.zero(); return this}
     irep = (other) => this.constructor._replace(other, this);
     replacedWith(other) {return this.constructor._replace(other)}
     static _replace(other, replaced=new this()) {
         if (Object.is(other, replaced)) return other;
-        replaced.coefficients.length = 0;
+        replaced.array.clear();
 
-        if (other instanceof this) replaced.coefficients.push(...other.coefficients);
-        if (Array.isArray(other)) replaced.coefficients.push(...other);
-        if (typeof other === 'number') replaced.coefficients[0] = other;
+        if (other instanceof this) replaced.array.push(...other.array);
+        if (Array.isArray(other)) replaced.array.push(...other);
+        if (typeof other === 'number') replaced.array.push(other);
 
         return replaced;
     }
@@ -119,29 +71,29 @@ class PolyNumber {
         if (polynumber.is_zero) return inverted.iclr();
 
         inverted.irep(polynumber);
-        for (const i of inverted.coefficients.keys()) inverted.coefficients[i] *= -1;
+        for (const i of inverted.array.keys()) inverted.array[i] *= -1;
         
         return inverted;
     }
 
     ishf = (amount) => this.constructor._shift(this, amount, this);
     shiftedBy = (amount) => this.constructor._shift(this, amount);
-    get is_shifter() {return this.allZeros(this.deg) && this.msc === 1}
+    get is_shifter() {return this.zeros(this.deg) && this.msc === 1}
     static _shift(polynumber, offset, shifted=new this()) {
         if (polynumber.is_zero) return shifted.iclr();
 
         shifted.irep(polynumber);
 
         if (offset > 0) {
-            shifted.coefficients.length += offset;
-            shifted.coefficients.copyWithin(offset);
-            shifted.coefficients.fill(0, 0, offset);
+            shifted.array.length += offset;
+            shifted.array.copyWithin(offset);
+            shifted.array.fill(0, 0, offset);
         }
 
         if (offset < 0) {
-            shifted.coefficients.reverse();
-            shifted.coefficients.length += offset;
-            shifted.coefficients.reverse();
+            shifted.array.reverse();
+            shifted.array.length += offset;
+            shifted.array.reverse();
         }
 
         return shifted;
@@ -155,10 +107,10 @@ class PolyNumber {
         if (amount !== 0) {
             const deg = translated.deg;
             if (deg === undefined)
-                translated.coefficients[0] = amount;
+                translated.array[0] = amount;
             else
                 for (let i = 0; i <= deg; i++)
-                    translated.coefficients[i] += amount;
+                    translated.array[i] += amount;
         }
             
         return translated;
@@ -173,7 +125,7 @@ class PolyNumber {
 
         if (factor === 1) return scaled;
         if (factor === -1) return this._inverse(polynumber, scaled);
-        for (const i of scaled.coefficients.keys()) scaled.coefficients[i] *= factor;
+        for (const i of scaled.array.keys()) scaled.array[i] *= factor;
 
         return scaled;
     }
@@ -203,8 +155,8 @@ class PolyNumber {
         const deg = new Sides(left.deg, right.deg);
         for (let i = 0; i <= deg.max; i++)
             switch (deg.lessThan(i)) {
-                case SIDE.right: added.coefficients[i] = right.coefficients[i]; break;
-                case SIDE.both: added.coefficients[i] += right.coefficients[i];
+                case SIDE.right: added.array[i] = right.array[i]; break;
+                case SIDE.both: added.array[i] += right.array[i];
             }
 
         return added;
@@ -223,19 +175,17 @@ class PolyNumber {
             if (polynumbers.length === 0) return summed.iclr();
             if (polynumbers.length === 1) return summed.irep(polynumbers[0]);
         } else {
-            if (polynumbers.length === 0) return summed.irep(sum(numbers));
-            if (polynumbers.length === 1) return summed.irep(polynumbers[0]).iadd(sum(numbers));
+            if (polynumbers.length === 0) return summed.irep(numbers.sum());
+            if (polynumbers.length === 1) return summed.irep(polynumbers[0]).iadd(numbers.sum());
         }
 
-        summed.coefficients.length = max(...polynumbers.map(p => p.height));
-        summed.coefficients.fill(0);
-        
+        summed.array.zeros(polynumbers.max_hgt());        
         if (numbers.length !== 0)
-            summed.coefficients[0] = sum(numbers);
+            summed.array[0] = numbers.sum();
         
         for (const polynumber of polynumbers)
-            for (const [index, coefficient] of polynumber.coefficients.entries())
-                summed.coefficients[index] += coefficient;
+            for (const [i, v] of polynumber.array.entries())
+                summed.array[i] += v;
 
         return summed;
     }
@@ -264,8 +214,8 @@ class PolyNumber {
         const deg = side.deg;
         for (let i = 0; i <= deg.max; i++)
             switch (deg.lessThan(i)) {
-                case SIDE.both: subtracted.coefficients[i] -= right.coefficients[i]; break;
-                case SIDE.right: subtracted.coefficients[i] = -right.coefficients[i];
+                case SIDE.both: subtracted.array[i] -= right.array[i]; break;
+                case SIDE.right: subtracted.array[i] = -right.array[i];
             }
 
         return subtracted;
@@ -276,8 +226,8 @@ class PolyNumber {
     static _multiply(left, right, product=new this()) {
         const side = new Sides(left, right);
 
-        if (side.row_column) return new BiPolyNumber(left.coefficients.map((c) => right.scaledBy(c)));
-        if (side.column_row) return new BiPolyNumber(right.coefficients.map((c) => left.scaledBy(c)));
+        if (side.row_column) return new BiPolyNumber(left.array.map((c) => right.scaledBy(c)));
+        if (side.column_row) return new BiPolyNumber(right.array.map((c) => left.scaledBy(c)));
 
         switch (side.is_number) {
             case SIDE.left: return this._scale(right, left, product);
@@ -292,15 +242,15 @@ class PolyNumber {
             case SIDE.right: return product.irep(left).ishf(right.deg);
         }
 
-        let coefficients = left.coefficients;
-        if (Object.is(product, left)) coefficients = [...coefficients];
+        let array = left.array;
+        if (Object.is(product, left)) array = [...array];
         if (Object.is(product, right)) right = right.copy();
         
         product.iclr();
 
-        for (const [i, coefficient] of coefficients.entries())
-            if (coefficient !== 0)
-                product.iadd(right.scaledBy(coefficient).ishf(i));
+        for (const [i, v] of array.entries())
+            if (v !== 0)
+                product.iadd(right.scaledBy(v).ishf(i));
 
         return product;
     }
@@ -325,17 +275,16 @@ class PolyNumber {
             if (factors.length === 0) return product.iclr();
             if (factors.length === 1) return product.irep(factors[0]);
         } else {
-            if (factors.length === 0) return product.irep(mul(numbers));
-            if (factors.length === 1) return product.irep(factors[0]).iscl(mul(numbers));
+            if (factors.length === 0) return product.irep(numbers.prd());
+            if (factors.length === 1) return product.irep(factors[0]).iscl(numbers.prd());
         }
         
-        const degrees = factors.map(p => p.deg);
+        const degrees = factors.degrees();
         if (degrees.includes(undefined))
             return product.iclr();
 
         const product_paths = this._getProductPaths(degrees);
-        product.coefficients.length = product_paths.length;
-        product.coefficients.fill(0);
+        product.array.zeros(product_paths.length);
 
         const values = [];
         const results = [];
@@ -347,15 +296,15 @@ class PolyNumber {
                 values.length = path.length;
                 
                 for (const [f, fy] of path.entries())
-                    values[f] = factors[f].coefficients[fy];
+                    values[f] = factors[f].array[fy];
 
-                results[i] = mul(values);
+                results[i] = values.prd();
             }
 
-            product.coefficients[y] += sum(results);
+            product.array[y] += results.sum();
         }
 
-        return numbers.length === 0 ? product : product.iscl(mul(numbers));
+        return numbers.length === 0 ? product : product.iscl(numbers.prd());
     }
 
     over = (polynumber) => this.constructor._divide(this, polynumber);
@@ -386,7 +335,7 @@ class PolyNumber {
         
         const deg = side.deg;
         if (deg.right === 0 && deg.left === 0)
-            return quotient.irep(dividend.coefficients[0] / divisor.coefficients[0]);
+            return quotient.irep(dividend.array[0] / divisor.array[0]);
 
         switch (side.is_shifter) {
             case SIDE.left: return quotient.irep(divisor).ishf(-deg.left);
@@ -451,27 +400,27 @@ class PolyNumber {
     evaluatedAt(num) {
         switch (this.deg) {
             case DEGREE.Undefined: return 0;
-            case DEGREE.Number: return this.coefficients[0];
-            case DEGREE.Linear: return this.coefficients[0] + this.coefficients[1] * num;
+            case DEGREE.Number: return this.array[0];
+            case DEGREE.Linear: return this.array[0] + this.array[1] * num;
         }
 
-        let result = this.coefficients[0] + this.coefficients[1] * num;
+        let result = this.array[0] + this.array[1] * num;
         for (let i = 2; i <= this.deg; i++)
-            result += this.coefficients[i] * pow(num, i);
+            result += this.array[i] * pow(num, i);
 
         return result;
     }
 
     evaluatedToZero() {
         switch (this.deg) {
-            case DEGREE.Linear: return -this.coefficients[0] / this.coefficients[1];
+            case DEGREE.Linear: return -this.array[0] / this.array[1];
             case DEGREE.Quadratic: {
-                const a = this.coefficients[2];
-                const b = this.coefficients[1];
-                const c = this.coefficients[0];
+                const a = this.array[2];
+                const b = this.array[1];
+                const c = this.array[0];
 
                 const two_a = 2 * a;
-                const sqrt_of__b_squared_minus_4ac = sqrt(sqr(b) - 4*a*c);
+                const sqrt_of__b_squared_minus_4ac = Math.sqrt(sqr(b) - 4*a*c);
 
                 return [
                     (-b + sqrt_of__b_squared_minus_4ac) / two_a,
@@ -482,7 +431,7 @@ class PolyNumber {
     }
     
     static _getProductPaths(factor_degrees) {
-        const deg = sum(factor_degrees);
+        const deg = factor_degrees.sum();
         const last = factor_degrees.length - 1;
         const path = Array(factor_degrees.length);
         const paths = grid2D(deg + 1, 0);
@@ -495,7 +444,7 @@ class PolyNumber {
                 path[f] = fy;
 
                 if (f === last) {
-                    y = sum(path);
+                    y = path.sum();
                     if (y <= deg)
                         paths[y].push([...path]);
                 } else
@@ -506,42 +455,18 @@ class PolyNumber {
 
         return paths;
     }
-
-    static _formatValue(value, is_first_non_zero) {
-        switch (value) {
-            case 1: return '';
-            case -1: return is_first_non_zero ? '-' : '';
-            default: return is_first_non_zero ? value : abs(value);
-        }
-    }
-
-    static _formatPrefix(value, is_first_non_zero) {
-        if (is_first_non_zero) return '';
-        return value > 0 ? ' + ' : ' - ';        
-    }
-
-    static _formatSuffix(index) {
-        switch (index) {
-            case 0: return '';
-            case 1: return '';
-            case 2: return '²';
-            case 3: return '³';
-        }
-        
-        return '^' + index;
-    }
 }
 
-const C = (...coefficients) => new PolyNumber(coefficients, ORIENTATION.COLUMN, NOTATION);
-const R = (...coefficients) => new PolyNumber(coefficients, ORIENTATION.ROW, NOTATION);
+const C = (...array) => new PolyNumber(array, ORIENTATION.COLUMN, FORM);
+const R = (...array) => new PolyNumber(array, ORIENTATION.ROW, FORM);
 
-const Px = (...coefficients) => C(...coefficients);
-const Py = (...coefficients) => R(...coefficients);
+const Px = (...array) => C(...array);
+const Py = (...array) => R(...array);
 
 const ALPHA = C([0, 1]);
 const BETA = R([0, 1]);
 const ONE = new PolyNumber([1]);
 
-ALPHA.variable = NOTATION[0];
-BETA.variable = NOTATION[1];
+ALPHA.form = FORM[0];
+BETA.form = FORM[1];
 
